@@ -1,0 +1,10 @@
+---Calculating number of days sleeping pattern was tracked, time the user was asleep and time the user was restless
+
+SELECT 
+ COUNT(*) AS numDaysTracked,
+ AVG(deepSleepTime + shallowSleepTime)/60.0 AS averagHoursAsleep,
+ AVG(wakeTime) AS averageMinutesRestless
+
+ FROM `linen-diorama-397321.fitabase_dataset_2.sleep`
+
+WHERE deepSleepTime > 0 AND shallowSleepTime >0 ----Excluding dates with zero values

@@ -1,0 +1,108 @@
+---Determining average heart rate per user
+SELECT
+Id,
+AVG(CAST(Value AS INT)) AS AverageHeartRate
+FROM
+	`bellabeat.Heart_rate_seconds_clean`
+
+GROUP BY
+	Id
+	
+--Calculate Average minutes for each daily activity
+
+SELECT
+  ROUND(AVG(VeryActiveMinutes)) AS AVG_Very_Active_minutes,
+  ROUND(AVG(FairlyActiveMinutes)) AS AVG_Fairly_Active_minutes,
+  ROUND(AVG(LightlyActiveMinutes)/60, 2) AS AVG_Lightly_Active_HOURS,
+  ROUND(AVG(SedentaryMinutes)/60, 2) AS AVG_sedentary_Hours
+
+  
+FROM `bellabeat.dailyActivity`
+
+--Calculate the number of days each user tracekd their physical activity
+
+SELECT 
+  DISTINCT Id,
+  COUNT(ActivityDate) OVER (PARTITION BY Id) AS days_activity_recorded
+FROM `bellabeat.dailyActivity`
+
+ORDER BY
+  days_activity_recorded DESC
+  
+ 
+ ---Calculating, number of users, users tracking their physical activities, their average steps, average distance and average calories
+SELECT
+	COUNT(DISTINCT Id) AS numUsers,
+	AVG(TotalSteps) AS averageSteps,
+	AVG(TotalDistance) AS averageTotalDistance,
+	AVG(Calories) AS averageCalories
+FROM	
+  bellabeat.dailyActivity 
+  
+  
+---Determining number of users that are tracking their sleeping pattern
+
+SELECT 
+	COUNT (DISTINCT Id) AS usersTrackingSleep,
+	COUNT(DISTINCT Id)/33.0*100 AS PercetageUsers,
+	AVG(CAST(TotalMinutesAsleep AS FLOAT64))/60.0 AS AverageHoursAsleep,
+	AVG(CAST(TotalTimeInBed AS FLOAT64))/60.0 AS AverageHoursInBed
+
+FROM
+	`bellabeat.Day_sleep_cleaned`
+	
+	
+ --2) Tracking their heart rate
+
+SELECT 
+  COUNT(DISTINCT Id) AS users_tracking_heartrate,
+  AVG(Value) AS average_heart_rate,
+  MIN(Value) AS min_heart_rate,
+  MAX(Value) AS max_heart_rate
+
+FROM `bellabeat.Heart_rate_seconds_clean`
+
+
+--Users tracking sleep
+
+SELECT
+  COUNT(DISTINCT Id) AS users_tracking_sleep,
+  
+  AVG(CAST(TotalMinutesAsleep AS FLOAT64))/60.0 AS Average_hour_sleep,
+  MIN(CAST(TotalMinutesAsleep AS FLOAT64))/60.0 AS Min_hours_sleep,
+  MAX(CAST(TotalMinutesAsleep AS FLOAT64))/60.0 AS Max_hours_sleep,
+  AVG(CAST(TotalMinutesAsleep AS FLOAT64))/60.0 AS average_hours_in_bed
+
+
+FROM `bellabeat.Day_sleep_cleaned` 
+
+--Users Tracking Weight
+
+SELECT
+  COUNT(DISTINCT Id) AS users_tracking_weight
+
+FROM `bellabeat.WeghtLogInfo_cleaned`--Users Tracking Weight
+
+SELECT
+  COUNT(DISTINCT Id) AS users_tracking_weight
+
+FROM `bellabeat.WeghtLogInfo_cleaned`
+
+--Determine when users are mostly active
+
+SELECT
+  DISTINCT(CAST(ActivityHour AS TIME)) AS activity_time,
+  AVG(TotalIntensity) OVER (PARTITION BY DATE_TRUNC(activityHour, Hour)) AS Average_intensity,
+ 
+FROM `bellabeat.HourlyActivity_cleaned` AS Hourly_activity
+
+JOIN `bellabeat.MinuteMetsNarrow_cleaned` AS METs
+
+ON Hourly_Activity.Id = METs.Id AND
+   Hourly_activity.ActivityHour = METs.ActivityMinute
+
+ORDER BY
+  average_intensity DESC
+ 
+
+
